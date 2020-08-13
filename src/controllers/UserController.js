@@ -53,7 +53,7 @@ const UserController = {
         }
     },
     // User logout
-    async logout (req,res){
+    async logout(req,res) {
         try {
             await UserModel.findByIdAndUpdate(req.user._id, {
                 $pull: {
@@ -66,6 +66,30 @@ const UserController = {
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to log out this user."});
+        }
+    },
+    // User update data
+    async update(req,res) {
+        try {
+           const user = await UserModel.findByIdAndUpdate(req.params.id, {
+                profession: req.body.profession,
+                hobbies: req.body.hobbies
+            }, {new: true})
+            res.status(201).send(user);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to update this user."})
+        }
+    },
+
+    async delete(req,res) {
+        try {
+            await UserModel.findByIdAndDelete(req.params.id);
+            res.status(201).send({message:"User successfully deleted."});
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to delete this user."})
         }
     }
 }
