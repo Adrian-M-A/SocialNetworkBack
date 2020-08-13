@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const validator = require('validator');
+import mongoose from 'mongoose';
+import validator from 'validator';
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -68,4 +68,4 @@ UserSchema.methods.toJSON = function () {
 
 const UserModel = mongoose.model('User', UserSchema);
 
-module.exports = UserModel;
+export default UserModel;
