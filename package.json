@@ -1,0 +1,26 @@
+{
+  "name": "socialnetworkback",
+  "version": "1.0.0",
+  "description": "A social network made by React, Redux, NodeJS, Express and Mongo",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adrian-M-A/SocialNetworkBack.git"
+  },
+  "author": "Adrian M.A.",
+  "license": "GNU 3",
+  "bugs": {
+    "url": "https://github.com/Adrian-M-A/SocialNetworkBack/issues"
+  },
+  "homepage": "https://github.com/Adrian-M-A/SocialNetworkBack#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.28"
+  }
+}
