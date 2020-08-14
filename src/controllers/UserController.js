@@ -155,7 +155,68 @@ const UserController = {
             console.error(error);
             res.status(500).send({message:"There was an error trying to get users between these ages."})
         }
-    }
+    },
+    // Friendship request
+    async friendshipRequest(req,res) {
+        
+        try {
+            const requesterId = req.body.requester;
+            const receiverId = req.body.receiver;
+
+            const requester = await UserModel.findById(requesterId);
+            const receiver = await UserModel.findById(receiverId);
+            await UserModel.findByIdAndUpdate(requesterId, {
+                $push: {
+                    pendingFriends: receiver
+                }
+            });
+            await UserModel.findByIdAndUpdate(receiverId, {
+                $push: {
+                    pendingFriends: requester
+                }
+            });
+            res.status(201).send({message:"Friendship request succesfully done."})
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to process the friendship request."})
+        }
+    },
+    // Friendship request
+    async cancelFriendshipRequest(req,res) {
+        
+        try {
+            const requesterId = req.body.requester;
+            const receiverId = req.body.receiver;
+
+            const requester = await UserModel.findById(requesterId);
+            const receiver = await UserModel.findById(receiverId);
+            
+
+            const searchReceiver = (receiverId) => {
+                return requester.pendingFriends = receiverId;
+            }
+
+            for(i = 0; i < pendingFriends.length; i++){
+                await UserModel.findByIdAndUpdate(requesterId, {
+                    $pull: {
+                        
+                        pendingFriends: receiver
+                    }
+                });
+            }
+            
+            await UserModel.findByIdAndUpdate(receiverId, {
+                $pull: {
+                    pendingFriends: requester
+                }
+            });
+            res.status(201).send({message:"Friendship request succesfully cancelled."})
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to cancel the friendship request."})
+        }
+    },
+
 }
 
 export default UserController;

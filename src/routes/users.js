@@ -13,6 +13,9 @@ router.delete('/:id', UserController.delete);
 router.get('/search/:input', UserController.searchUsers);
 router.get('/age', UserController.betweenAges);
 router.get('/age/desc', UserController.betweenAgesDesc);
+router.post('/friendshiprequest', UserController.friendshipRequest);
+router.post('/cancelrequest', UserController.cancelFriendshipRequest);
+
 
 export default router;
 
