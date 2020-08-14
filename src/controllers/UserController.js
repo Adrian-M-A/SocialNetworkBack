@@ -42,11 +42,12 @@ const UserController = {
                         token:token
                     }
                 })
-                res.send({
+                res.status(201).send({
                     user,
                     token
                 })
             }
+
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to log in this user."})
@@ -61,17 +62,30 @@ const UserController = {
                 }
             });
             
-            res.send({message:"User succesfully logged out."})
+            res.status(201).send({message:"User succesfully logged out."})
             
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to log out this user."});
         }
     },
+    // Find user data
+    async userData(req,res) {
+        try {
+            const id = req.params.id;
+            const user = await UserModel.findById(id);
+            res.status(201).end(user);
+            
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was a problem trying to get user' data."})
+        }
+    },
     // User update data
     async update(req,res) {
         try {
-           const user = await UserModel.findByIdAndUpdate(req.params.id, {
+            const id = req.params.id;
+            const user = await UserModel.findByIdAndUpdate(id, {
                 profession: req.body.profession,
                 hobbies: req.body.hobbies
             }, {new: true})
@@ -87,6 +101,7 @@ const UserController = {
         try {
             await UserModel.findByIdAndDelete(req.params.id);
             res.status(201).send({message:"User successfully deleted."});
+
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to delete this user."})
@@ -108,6 +123,37 @@ const UserController = {
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to get users by the especified criteria."})
+        }
+    },
+    // Get users between ages
+    async betweenAges(req,res) {
+        try {
+            const minAge = req.body.minAge;
+            const maxAge = req.body.maxAge;
+            const users = await UserModel.find( {$and: [
+                {age: {$gte: minAge}},
+                {age: {$lte: maxAge}}
+            ]});
+            res.status(201).send(users);
+            
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to get users between these ages."})
+        }
+    },
+    async betweenAgesDesc(req,res) {
+        try {
+            const minAge = req.body.minAge;
+            const maxAge = req.body.maxAge;
+            const users = await UserModel.find( {$and: [
+                {age: {$gte: minAge}},
+                {age: {$lte: maxAge}}
+            ]}).sort({age:-1});
+            res.status(201).send(users);
+            
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to get users between these ages."})
         }
     }
 }
