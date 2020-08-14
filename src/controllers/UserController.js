@@ -82,7 +82,7 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to update this user."})
         }
     },
-
+    // Delete user
     async delete(req,res) {
         try {
             await UserModel.findByIdAndDelete(req.params.id);
@@ -90,6 +90,24 @@ const UserController = {
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to delete this user."})
+        }
+    },
+    // Search users by criteria
+    async searchUsers(req,res) {
+        try {
+            const searchInput = req.params.input;
+            const users = await UserModel.find( {$or: [
+                {name: searchInput},
+                {profession: searchInput},
+                {hobbies: searchInput},
+                {city: searchInput},
+                {country: searchInput}                   
+            ]}).limit(15)
+            res.status(201).send(users);
+            
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to get users by the especified criteria."})
         }
     }
 }

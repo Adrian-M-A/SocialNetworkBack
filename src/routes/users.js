@@ -9,6 +9,7 @@ router.post('/login', UserController.login);
 router.get('/logout', auth, UserController.logout);
 router.put('/:id', UserController.update);
 router.delete('/:id', UserController.delete);
+router.get('/search/:input', UserController.searchUsers);
 
 export default router;
 
