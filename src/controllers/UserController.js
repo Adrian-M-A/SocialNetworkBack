@@ -158,7 +158,6 @@ const UserController = {
     },
     // Friendship request
     async friendshipRequest(req,res) {
-        
         try {
             const requesterId = req.body.requester;
             const receiverId = req.body.receiver;
@@ -181,9 +180,8 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to process the friendship request."})
         }
     },
-    // Friendship request
+    // Cancel friendship request
     async cancelFriendshipRequest(req,res) {
-        
         try {
             const requesterId = req.body.requester;
             const receiverId = req.body.receiver;
@@ -191,23 +189,15 @@ const UserController = {
             const requester = await UserModel.findById(requesterId);
             const receiver = await UserModel.findById(receiverId);
             
-
-            const searchReceiver = (receiverId) => {
-                return requester.pendingFriends = receiverId;
-            }
-
-            for(i = 0; i < pendingFriends.length; i++){
-                await UserModel.findByIdAndUpdate(requesterId, {
-                    $pull: {
-                        
-                        pendingFriends: receiver
-                    }
-                });
-            }
+            await UserModel.findByIdAndUpdate(requesterId, {
+                $pull: {
+                    pendingFriends: {email:receiver.email}
+                }
+            });
             
             await UserModel.findByIdAndUpdate(receiverId, {
                 $pull: {
-                    pendingFriends: requester
+                    pendingFriends: {email:requester.email}
                 }
             });
             res.status(201).send({message:"Friendship request succesfully cancelled."})
@@ -216,6 +206,38 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to cancel the friendship request."})
         }
     },
+    // Accept friendship request
+    async acceptFriendshipRequest(req,res) {
+        try {
+            const requesterId = req.body.requester;
+            const receiverId = req.body.receiver;
+
+            const requester = await UserModel.findById(requesterId);
+            const receiver = await UserModel.findById(receiverId);
+            
+            await UserModel.findByIdAndUpdate(requesterId, {
+                $pull: {
+                    pendingFriends: {email:receiver.email}
+                },
+                $push: {
+                    friends: receiver
+                }
+            });
+            
+            await UserModel.findByIdAndUpdate(receiverId, {
+                $pull: {
+                    pendingFriends: {email:requester.email}
+                },
+                $push: {
+                    friends: requester
+                }
+            });
+            res.status(201).send({message:"Friendship request succesfully accepted."})
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to accept the friendship request."})
+        }
+    }
 
 }
 
