@@ -237,8 +237,32 @@ const UserController = {
             console.error(error);
             res.status(500).send({message:"There was an error trying to accept the friendship request."})
         }
-    }
+    },
+    async cancelFriendship(req,res) {
+        try {
+            const requesterId = req.body.requester;
+            const receiverId = req.body.receiver;
 
+            const requester = await UserModel.findById(requesterId);
+            const receiver = await UserModel.findById(receiverId);
+            
+            await UserModel.findByIdAndUpdate(requesterId, {
+                $pull: {
+                    friends: {email:receiver.email}
+                }
+            });
+            
+            await UserModel.findByIdAndUpdate(receiverId, {
+                $pull: {
+                    friends: {email:requester.email}
+                }
+            });
+            res.status(201).send({message:"Friendship succesfully cancelled."})
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to cancel the friendship."})
+        }
+    }
 }
 
 export default UserController;

@@ -16,6 +16,7 @@ router.get('/age/desc', UserController.betweenAgesDesc);
 router.post('/friendshiprequest', UserController.friendshipRequest);
 router.post('/cancelrequest', UserController.cancelFriendshipRequest);
 router.post('/acceptrequest', UserController.acceptFriendshipRequest);
+router.post('/cancelfriendship', UserController.cancelFriendship);
 
 
 export default router;
