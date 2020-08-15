@@ -87,7 +87,8 @@ const UserController = {
             const id = req.params.id;
             const user = await UserModel.findByIdAndUpdate(id, {
                 profession: req.body.profession,
-                hobbies: req.body.hobbies
+                hobbies: req.body.hobbies,
+                imagesPath: req.body.imagesPath
             }, {new: true})
             res.status(201).send(user);
 

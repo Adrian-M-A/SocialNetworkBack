@@ -38,6 +38,9 @@ const UserSchema = new mongoose.Schema({
     pendingFriends:{
         type: [Object]
     },
+    imagesPath:{
+        type: [String]
+    },
     email: {
         type: String,
         unique: [true, "The email is in use."],
