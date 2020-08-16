@@ -6,6 +6,26 @@ const UserController = {
     // User registration
     async register(req,res) {
         try {
+            let nameRegex = new RegExp("[0-9]");
+            let surnamesRegex = new RegExp("[0-9]");
+            let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})");
+
+            if(req.body.name.length > 20 || req.body.name.length < 3 || nameRegex.test(req.body.name) || req.body.name === ""){
+                res.send({message:"Name is not valid."});
+                return;
+            }
+        
+            if(req.body.surnames.length > 35 || req.body.surnames.length < 3 || surnamesRegex.test(req.body.surnames) || req.body.surnames === ""){
+                res.send({message: 'Surnames are not valid.'});
+                return;
+            }
+
+            if(!passwordRegex.test(req.body.password) || req.body.password === ""){
+                res.send({message: 'Password must contain almost 1 uppercase, 1 lowercase, 1 symbol, 1 number and 8 characteres length.'});
+                return;
+            }
+            
+
             req.body.password = await bcrypt.hash(req.body.password, 10);
             const user = await UserModel.create(req.body);
             res.status(201).send(user);
