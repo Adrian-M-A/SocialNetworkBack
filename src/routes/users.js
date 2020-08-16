@@ -20,4 +20,3 @@ router.post('/cancelfriendship', UserController.cancelFriendship);
 
 
 export default router;
-

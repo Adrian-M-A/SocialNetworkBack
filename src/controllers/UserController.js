@@ -264,6 +264,6 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to cancel the friendship."})
         }
     }
-}
+};
 
 export default UserController;
