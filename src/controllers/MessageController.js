@@ -19,7 +19,7 @@ const MessageController = {
                 
                 socialGroup: 'public'
 
-            }).sort({createdAt:-1}).limit(15);
+            }).sort({createdAt:-1}).limit(6);
             res.status(201).send(messages);
 
         } catch (error) {
@@ -34,7 +34,7 @@ const MessageController = {
 
                 socialGroup: 'thinkers'
 
-            }).sort({createdAt:-1}).limit(15);
+            }).sort({createdAt:-1}).limit(6);
             res.status(201).send(messages);
 
         } catch (error) {
