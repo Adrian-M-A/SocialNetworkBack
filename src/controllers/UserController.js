@@ -76,7 +76,7 @@ const UserController = {
     // User logout
     async logout(req,res) {
         try {
-            await UserModel.findByIdAndUpdate(req.user._id, {
+            await UserModel.findByIdAndUpdate(req.params.id, {
                 $pull: {
                     token: req.headers.authorization
                 }

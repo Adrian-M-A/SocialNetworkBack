@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
-router.get('/logout', auth, UserController.logout);
+router.get('/logout', auth,  UserController.logout);
 router.get('/data/:id', auth, UserController.userData);
 router.put('/:id', auth, UserController.update);
 router.delete('/:id', auth, UserController.delete);
