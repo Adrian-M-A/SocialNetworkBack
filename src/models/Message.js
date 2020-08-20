@@ -14,10 +14,22 @@ const MessageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    name: {
+        type: String,
+        required: true
+    },
+    surnames: {
+        type: String,
+        required: true
+    },
+    imagesPath: {
+        type: [String],
+        required: true
+    },
     socialGroup: {
         type: String,
         required: true
-    }
+    },
 
 },{
     timestamps : true
