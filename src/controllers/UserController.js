@@ -128,6 +128,24 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to delete this user."})
         }
     },
+    // Recommended friends
+    async recommendedFriends(req,res) {
+        try {
+            const searchInput = req.params.country;
+            let userEmail = req.body.email;
+            const friends = await UserModel.find({ $and: [
+                
+                {email: {$ne: userEmail}},
+                {country: searchInput}
+            ]
+            }).limit(15)
+            res.status(201).send(friends);
+            
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to get users by the especified criteria."})
+        }
+    },
     // Search users by criteria
     async searchUsers(req,res) {
         try {
@@ -162,6 +180,7 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to get users between these ages."})
         }
     },
+    // Between ages descendent
     async betweenAgesDesc(req,res) {
         try {
             const minAge = req.body.minAge;

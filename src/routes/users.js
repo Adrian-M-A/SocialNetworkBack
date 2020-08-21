@@ -10,6 +10,7 @@ router.get('/logout', auth,  UserController.logout);
 router.get('/data/:id', auth, UserController.userData);
 router.put('/:id', auth, UserController.update);
 router.delete('/:id', auth, UserController.delete);
+router.get('/newfriends/:country', auth, UserController.recommendedFriends);
 router.get('/search/:input', auth, UserController.searchUsers);
 router.get('/age', auth, UserController.betweenAges);
 router.get('/age/desc', auth, UserController.betweenAgesDesc);
