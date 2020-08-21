@@ -131,13 +131,10 @@ const UserController = {
     // Recommended friends
     async recommendedFriends(req,res) {
         try {
-            const searchInput = req.params.country;
-            let userEmail = req.body.email;
-            const friends = await UserModel.find({ $and: [
-                
-                {email: {$ne: userEmail}},
-                {country: searchInput}
-            ]
+            const userCountry = req.params.country;
+            const friends = await UserModel.find({ 
+                country: userCountry
+            
             }).limit(15)
             res.status(201).send(friends);
             
