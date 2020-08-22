@@ -164,8 +164,8 @@ const UserController = {
     // Get users between ages
     async betweenAges(req,res) {
         try {
-            const minAge = req.body.minAge;
-            const maxAge = req.body.maxAge;
+            const minAge = req.params.minAge;
+            const maxAge = req.params.maxAge;
             const users = await UserModel.find( {$and: [
                 {age: {$gte: minAge}},
                 {age: {$lte: maxAge}}
@@ -180,8 +180,8 @@ const UserController = {
     // Between ages descendent
     async betweenAgesDesc(req,res) {
         try {
-            const minAge = req.body.minAge;
-            const maxAge = req.body.maxAge;
+            const minAge = req.params.minAge;
+            const maxAge = req.params.maxAge;
             const users = await UserModel.find( {$and: [
                 {age: {$gte: minAge}},
                 {age: {$lte: maxAge}}
