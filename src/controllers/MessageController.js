@@ -19,7 +19,7 @@ const MessageController = {
                 
                 socialGroup: 'public'
 
-            }).sort({createdAt:-1}).limit(6);
+            }).sort({createdAt:-1}).limit(10);
             res.status(201).send(messages);
 
         } catch (error) {
