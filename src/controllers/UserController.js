@@ -105,10 +105,33 @@ const UserController = {
     async update(req,res) {
         try {
             const id = req.params.id;
+            await UserModel.findByIdAndUpdate(id, {
+                $push: {  
+                    hobbies: req.body.hobbies,
+                    imagesPath: {
+                        $each: [req.body.imagesPath],
+                        $position: 0
+                    } ,
+                                            
+                }
+            }, {new: true})
+
+            await UserModel.findByIdAndUpdate(id, {
+                $unset: {  
+                    "imagesPath.3": 1,
+                    "hobbies.1": 1
+                }
+            }, {new: true})
+            
+            await UserModel.findByIdAndUpdate(id, {
+                $pull: {  
+                    imagesPath: null,
+                    hobbies: null
+                }
+            }, {new: true})
+            
             const user = await UserModel.findByIdAndUpdate(id, {
                 profession: req.body.profession,
-                hobbies: req.body.hobbies,
-                imagesPath: req.body.imagesPath
             }, {new: true})
             res.status(201).send(user);
 
