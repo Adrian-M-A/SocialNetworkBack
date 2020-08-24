@@ -155,8 +155,13 @@ const UserController = {
     async recommendedFriends(req,res) {
         try {
             const userCountry = req.params.country;
-            const friends = await UserModel.find({ 
-                country: userCountry
+            const userId = req.params.id;
+            const friends = await UserModel.find({ $and:
+                [
+                    { country: userCountry },
+                    { _id: {$ne: userId}} 
+                ]
+                
             
             }).limit(15)
             res.status(201).send(friends);
@@ -189,9 +194,11 @@ const UserController = {
         try {
             const minAge = req.params.minAge;
             const maxAge = req.params.maxAge;
+            const userId = req.params.id;
             const users = await UserModel.find( {$and: [
                 {age: {$gte: minAge}},
-                {age: {$lte: maxAge}}
+                {age: {$lte: maxAge}},
+                { _id: {$ne: userId}}
             ]});
             res.status(201).send(users);
             
@@ -205,9 +212,13 @@ const UserController = {
         try {
             const minAge = req.params.minAge;
             const maxAge = req.params.maxAge;
-            const users = await UserModel.find( {$and: [
+            const userId = req.params.id;
+
+            const users = await UserModel.find( {$and: 
+            [
                 {age: {$gte: minAge}},
-                {age: {$lte: maxAge}}
+                {age: {$lte: maxAge}},
+                { _id: {$ne: userId}}
             ]}).sort({age:-1});
             res.status(201).send(users);
             
@@ -241,7 +252,7 @@ const UserController = {
         }
     },
     // Cancel friendship request
-    async cancelFriendshipRequest(req,res) {
+    async rejectFriendshipRequest(req,res) {
         try {
             const requesterId = req.body.requester;
             const receiverId = req.body.receiver;
