@@ -107,7 +107,10 @@ const UserController = {
             const id = req.params.id;
             await UserModel.findByIdAndUpdate(id, {
                 $push: {  
-                    hobbies: req.body.hobbies,
+                    hobbies: {
+                        $each: [req.body.hobbies],
+                        $position: 0
+                    },
                     imagesPath: {
                         $each: [req.body.imagesPath],
                         $position: 0
