@@ -94,7 +94,7 @@ const UserController = {
         try {
             const id = req.params.id;
             const user = await UserModel.findById(id);
-            res.status(201).end(user);
+            res.status(201).send(user);
             
         } catch (error) {
             console.error(error);
