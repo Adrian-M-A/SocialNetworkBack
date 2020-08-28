@@ -1,6 +1,8 @@
 import UserModel from '../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import sgTransport from 'nodemailer-sendgrid-transport';
 
 const UserController = {
     // User registration
@@ -154,6 +156,71 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to delete this user."})
         }
     },
+
+    async resetPassword(req,res){
+        try {
+            
+            const user = await UserModel.findOne({email: req.body.email})
+            if(!user){
+                return res.status(422).send({message:'Email does not exist in our database.'})
+            }
+            
+            let options = {
+              auth: {
+                api_user: 'adrianmenalcala@gmail.com',
+                api_key: 's3ndgr1dS3NDGR1D'
+              }
+            }
+            
+            const token = jwt.sign({
+                _id: user._id
+             }, 'SocialNetwork', {expiresIn: '60m'});
+
+
+            let client = nodemailer.createTransport(sgTransport(options));
+            
+            const email = {
+                from: 'Social Network Team, adrian@neurocadi.es',
+                to: user.email,
+                subject: 'SocialNetwork reset password',
+                text: `Hello  ${user.name}, Recently you requested your password. Follow this link to change it http:localhost:3000/newpassword`,
+                html: `Hello<strong> ${user.name} </strong>,<br><br>  Recently you requested your password. 
+                <br><br> Follow this link to change it http:localhost:3000/newpassword 
+                <br> or <a href="http:localhost:3000/newpassword/${token}" style="flex">Click here to change it</a>
+                <br><br> Greetings
+                <br>SocialNetwork Team`
+            }
+            
+            client.sendMail(email);
+            res.status(200).send({message: "An email was sent to your address, please follow the instructions."})
+        
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:'There was an error trying to reset password'});
+        }
+    },
+
+    async changePassword(req,res){
+        const tokenReset = req.params.token;
+        const newPassword = req.body.newPassword;
+        
+        try {
+            const tokenId = jwt.verify(tokenReset, 'SocialNetwork');
+            const New = await bcrypt.hash(newPassword, 10);
+            await UserModel.findByIdAndUpdate(tokenId._id, {
+    
+                password: New
+                    
+            }, {new: true});
+ 
+            res.status(200).send({message:'Password successfully changed.'})
+
+        } catch (error) { 
+            console.error (error);
+            res.status(500).send({message:'There was an error trying to change the password.'})
+        }
+    },
+
     // Recommended friends
     async recommendedFriends(req,res) {
         try {
