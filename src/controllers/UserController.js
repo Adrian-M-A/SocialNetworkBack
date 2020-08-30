@@ -1,6 +1,8 @@
 import UserModel from '../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import sgTransport from 'nodemailer-sendgrid-transport';
 
 const UserController = {
     // User registration
@@ -76,7 +78,7 @@ const UserController = {
     // User logout
     async logout(req,res) {
         try {
-            await UserModel.findByIdAndUpdate(req.user._id, {
+            await UserModel.findByIdAndUpdate(req.params.id, {
                 $pull: {
                     token: req.headers.authorization
                 }
@@ -94,7 +96,7 @@ const UserController = {
         try {
             const id = req.params.id;
             const user = await UserModel.findById(id);
-            res.status(201).end(user);
+            res.status(201).send(user);
             
         } catch (error) {
             console.error(error);
@@ -105,10 +107,36 @@ const UserController = {
     async update(req,res) {
         try {
             const id = req.params.id;
+            await UserModel.findByIdAndUpdate(id, {
+                $push: {  
+                    hobbies: {
+                        $each: [req.body.hobbies],
+                        $position: 0
+                    },
+                    imagesPath: {
+                        $each: [req.body.imagesPath],
+                        $position: 0
+                    } ,
+                                            
+                }
+            }, {new: true})
+
+            await UserModel.findByIdAndUpdate(id, {
+                $unset: {  
+                    "imagesPath.3": 1,
+                    "hobbies.1": 1
+                }
+            }, {new: true})
+            
+            await UserModel.findByIdAndUpdate(id, {
+                $pull: {  
+                    imagesPath: null,
+                    hobbies: null
+                }
+            }, {new: true})
+            
             const user = await UserModel.findByIdAndUpdate(id, {
                 profession: req.body.profession,
-                hobbies: req.body.hobbies,
-                imagesPath: req.body.imagesPath
             }, {new: true})
             res.status(201).send(user);
 
@@ -126,6 +154,91 @@ const UserController = {
         } catch (error) {
             console.error(error);
             res.status(500).send({message:"There was an error trying to delete this user."})
+        }
+    },
+
+    async resetPassword(req,res){
+        try {
+            
+            const user = await UserModel.findOne({email: req.body.email})
+            if(!user){
+                return res.status(422).send({message:'Email does not exist in our database.'})
+            }
+            
+            let options = {
+              auth: {
+                api_user: 'adrianmenalcala@gmail.com',
+                api_key: 's3ndgr1dS3NDGR1D'
+              }
+            }
+            
+            const token = jwt.sign({
+                _id: user._id
+             }, 'SocialNetwork', {expiresIn: '60m'});
+
+
+            let client = nodemailer.createTransport(sgTransport(options));
+            
+            const email = {
+                from: 'Social Network Team, adrian@neurocadi.es',
+                to: user.email,
+                subject: 'SocialNetwork reset password',
+                text: `Hello  ${user.name}, Recently you requested your password. Follow this link to change it http:localhost:3000/newpassword`,
+                html: `Hello<strong> ${user.name} </strong>,<br><br>  Recently you requested your password. 
+                <br><br> Follow this link to change it http:localhost:3000/newpassword 
+                <br> or <a href="http:localhost:3000/newpassword/${token}" style="flex">Click here to change it</a>
+                <br><br> Greetings
+                <br>SocialNetwork Team`
+            }
+            
+            client.sendMail(email);
+            res.status(200).send({message: "An email was sent to your address, please follow the instructions."})
+        
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:'There was an error trying to reset password'});
+        }
+    },
+
+    async changePassword(req,res){
+        const tokenReset = req.params.token;
+        const newPassword = req.body.newPassword;
+        
+        try {
+            const tokenId = jwt.verify(tokenReset, 'SocialNetwork');
+            const New = await bcrypt.hash(newPassword, 10);
+            await UserModel.findByIdAndUpdate(tokenId._id, {
+    
+                password: New
+                    
+            }, {new: true});
+ 
+            res.status(200).send({message:'Password successfully changed.'})
+
+        } catch (error) { 
+            console.error (error);
+            res.status(500).send({message:'There was an error trying to change the password.'})
+        }
+    },
+
+    // Recommended friends
+    async recommendedFriends(req,res) {
+        try {
+            const userCountry = req.params.country;
+            const userId = req.params.id;
+            const friends = await UserModel.find({ $and:
+                [
+                    { country: userCountry },
+                    { _id: {$ne: userId}} 
+                ]
+                
+            
+            }).limit(15)
+            res.status(201).send(friends);
+            
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({message:"There was an error trying to get users by the especified criteria."})
         }
     },
     // Search users by criteria
@@ -149,11 +262,13 @@ const UserController = {
     // Get users between ages
     async betweenAges(req,res) {
         try {
-            const minAge = req.body.minAge;
-            const maxAge = req.body.maxAge;
+            const minAge = req.params.minAge;
+            const maxAge = req.params.maxAge;
+            const userId = req.params.id;
             const users = await UserModel.find( {$and: [
                 {age: {$gte: minAge}},
-                {age: {$lte: maxAge}}
+                {age: {$lte: maxAge}},
+                { _id: {$ne: userId}}
             ]});
             res.status(201).send(users);
             
@@ -162,13 +277,18 @@ const UserController = {
             res.status(500).send({message:"There was an error trying to get users between these ages."})
         }
     },
+    // Between ages descendent
     async betweenAgesDesc(req,res) {
         try {
-            const minAge = req.body.minAge;
-            const maxAge = req.body.maxAge;
-            const users = await UserModel.find( {$and: [
+            const minAge = req.params.minAge;
+            const maxAge = req.params.maxAge;
+            const userId = req.params.id;
+
+            const users = await UserModel.find( {$and: 
+            [
                 {age: {$gte: minAge}},
-                {age: {$lte: maxAge}}
+                {age: {$lte: maxAge}},
+                { _id: {$ne: userId}}
             ]}).sort({age:-1});
             res.status(201).send(users);
             
@@ -202,7 +322,7 @@ const UserController = {
         }
     },
     // Cancel friendship request
-    async cancelFriendshipRequest(req,res) {
+    async rejectFriendshipRequest(req,res) {
         try {
             const requesterId = req.body.requester;
             const receiverId = req.body.receiver;
